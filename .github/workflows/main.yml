@@ -1,8 +1,24 @@
-name: testing_splunk_report
-on: push
+name: Test OIDC Authentication
+
+on:
+  workflow_dispatch:  # Allows manual trigger from GitHub Actions UI
+
+permissions:
+  id-token: write   # Required for OIDC authentication
+  contents: read
+
 jobs:
-   my-job:
-     runs-on: ubuntu-latest
-     steps:
-     - name: testing
-       run: echo "Hello World"
+  test-auth:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::014498625826:role/Testing-Lambda-Role
+          aws-region: us-east-1
+
+      - name: Verify Identity
+        run: aws sts get-caller-identity
